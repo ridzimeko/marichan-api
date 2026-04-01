@@ -23,6 +23,10 @@ type Env struct {
 	UploadDir       string
 	TempDir         string
 	MaxUploadSizeMB int64
+
+	PixivPHPSESSID string
+	PixivUserAgent string
+	PixivBaseURL   string
 }
 
 func LoadEnv() *Env {
@@ -43,6 +47,9 @@ func LoadEnv() *Env {
 		UploadDir:       getEnv("UPLOAD_DIR", "uploads"),
 		TempDir:         getEnv("TEMP_DIR", "tmp"),
 		MaxUploadSizeMB: getEnvInt64("MAX_UPLOAD_SIZE_MB", 10),
+		PixivPHPSESSID:  getEnv("PIXIV_PHPSESSID", ""),
+		PixivUserAgent:  getEnv("PIXIV_USER_AGENT", "Mozilla/5.0"),
+		PixivBaseURL:    getEnv("PIXIV_BASE_URL", "https://www.pixiv.net"),
 	}
 
 	log.Printf("loaded env: %s (%s)\n", env.AppName, env.AppEnv)

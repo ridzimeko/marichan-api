@@ -28,12 +28,19 @@ func setupRouter(server *Server) *gin.Engine {
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/health", server.HealthHandler.Check)
+		v1.GET("/pixiv/download-artwork", server.PixivHandler.DownloadArtwork)
 
 		protected := v1.Group("/")
 		protected.Use(middleware.APIKeyAuth(server.Env))
 		{
 			protected.POST("/sticker/convert", server.StickerHandler.Convert)
 			protected.POST("/trace-anime/search", server.TraceAnimeHandler.Search)
+
+			// pixiv routes
+			protected.GET("/pixiv/artworks/:id", server.PixivHandler.GetArtworkDetail)
+			protected.GET("/pixiv/search/artworks", server.PixivHandler.SearchArtworks)
+			protected.GET("/pixiv/artists/:id", server.PixivHandler.GetArtistDetail)
+			protected.GET("/pixiv/download", server.PixivHandler.DownloadImage)
 		}
 	}
 
