@@ -1,6 +1,7 @@
 package chatbot
 
 import (
+	"errors"
 	"marichan-api/internal/pkg/response"
 	"net/http"
 
@@ -37,6 +38,11 @@ func (h *Handler) Chat(c *gin.Context) {
 
 	reply, err := h.service.Chat(c.Request.Context(), &req)
 	if err != nil {
+		var provErr *ProviderError
+		if errors.As(err, &provErr) {
+			response.Error(c, provErr.StatusCode, provErr.Message, nil)
+			return
+		}
 		response.Error(c, http.StatusBadGateway, err.Error(), nil)
 		return
 	}

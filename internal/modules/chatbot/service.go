@@ -8,6 +8,15 @@ import (
 	"google.golang.org/genai"
 )
 
+type ProviderError struct {
+	StatusCode int
+	Message    string
+}
+
+func (e *ProviderError) Error() string {
+	return e.Message
+}
+
 type Service struct {
 	env    *config.Env
 	client *genai.Client
@@ -37,13 +46,22 @@ func (s *Service) Chat(ctx context.Context, req *ChatRequest) (string, error) {
 	}
 
 	// Default fallback is Gemini
-	var config *genai.GenerateContentConfig
+	config := &genai.GenerateContentConfig{}
+	
 	if systemPrompt != "" {
-		config = &genai.GenerateContentConfig{
-			SystemInstruction: &genai.Content{
-				Parts: []*genai.Part{{Text: systemPrompt}},
-			},
+		config.SystemInstruction = &genai.Content{
+			Parts: []*genai.Part{{Text: systemPrompt}},
 		}
+	}
+
+	if req.Temperature != nil {
+		config.Temperature = req.Temperature
+	}
+	if req.TopP != nil {
+		config.TopP = req.TopP
+	}
+	if req.MaxCompletionTokens > 0 {
+		config.MaxOutputTokens = int32(req.MaxCompletionTokens)
 	}
 
 	resp, err := s.client.Models.GenerateContent(ctx, "gemini-2.5-flash", genai.Text(req.Prompt), config)

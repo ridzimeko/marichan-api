@@ -42,7 +42,7 @@ func (s *Service) chatGroq(ctx context.Context, apiKey string, systemPrompt stri
 
 	model := req.Model
 	if model == "" {
-		model = "openai/gpt-oss-120b" // fallback default groq model
+		model = "groq/compound" // fallback default groq model
 	}
 
 	messages := []GroqMessage{}
@@ -92,6 +92,18 @@ func (s *Service) chatGroq(ctx context.Context, apiKey string, systemPrompt stri
 
 	if resp.StatusCode >= 400 {
 		raw, _ := io.ReadAll(resp.Body)
+		if resp.StatusCode == 419 {
+			return "", &ProviderError{
+				StatusCode: resp.StatusCode,
+				Message:    "Groq API limits exceeded",
+			}
+		}
+		if resp.StatusCode == http.StatusRequestEntityTooLarge {
+			return "", &ProviderError{
+				StatusCode: resp.StatusCode,
+				Message:    "Request entity too large",
+			}
+		}
 		return "", fmt.Errorf("groq API error: status %d body %s", resp.StatusCode, string(raw))
 	}
 
