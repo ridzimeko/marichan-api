@@ -41,6 +41,7 @@ func setupRouter(server *Server) *gin.Engine {
 			protected.GET("/pixiv/search/artworks", server.PixivHandler.SearchArtworks)
 			protected.GET("/pixiv/artists/:id", server.PixivHandler.GetArtistDetail)
 			protected.GET("/pixiv/download", server.PixivHandler.DownloadImage)
+			protected.POST("/chatbot/chat", server.ChatbotHandler.Chat)
 		}
 	}
 

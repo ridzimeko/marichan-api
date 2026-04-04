@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"marichan-api/internal/config"
 	"marichan-api/internal/database"
+	"marichan-api/internal/modules/chatbot"
 	"marichan-api/internal/modules/health"
 	"marichan-api/internal/modules/pixiv"
 	"marichan-api/internal/modules/sticker"
@@ -22,6 +23,7 @@ type Server struct {
 	StickerHandler    *sticker.Handler
 	TraceAnimeHandler *traceanime.Handler
 	PixivHandler      *pixiv.Handler
+	ChatbotHandler    *chatbot.Handler
 }
 
 func NewServer(env *config.Env) (*Server, error) {
@@ -37,6 +39,10 @@ func NewServer(env *config.Env) (*Server, error) {
 	stickerService := sticker.NewService(env)
 	traceAnimeService := traceanime.NewService()
 	pixivService := pixiv.NewService(env)
+	chatbotService, err := chatbot.NewService(env)
+	if err != nil {
+		return nil, err
+	}
 
 	s := &Server{
 		Env:               env,
@@ -45,6 +51,7 @@ func NewServer(env *config.Env) (*Server, error) {
 		StickerHandler:    sticker.NewHandler(stickerService),
 		TraceAnimeHandler: traceanime.NewHandler(traceAnimeService),
 		PixivHandler:      pixiv.NewHandler(pixivService),
+		ChatbotHandler:    chatbot.NewHandler(chatbotService),
 	}
 
 	router := setupRouter(s)
