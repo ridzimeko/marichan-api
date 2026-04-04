@@ -30,6 +30,8 @@ type Env struct {
 
 	GeminiAPIKey           string
 	GeminiSystemPromptFile string
+
+	GroqAPIKey             string
 }
 
 func LoadEnv() *Env {
@@ -55,6 +57,7 @@ func LoadEnv() *Env {
 		PixivBaseURL:           getEnv("PIXIV_BASE_URL", "https://www.pixiv.net"),
 		GeminiAPIKey:           getEnv("GEMINI_API_KEY", ""),
 		GeminiSystemPromptFile: getEnv("GEMINI_SYSTEM_PROMPT_FILE", "prompts/chatbot_mari.txt"),
+		GroqAPIKey:             getEnv("GROQ_API_KEY", ""),
 	}
 
 	log.Printf("loaded env: %s (%s)\n", env.AppName, env.AppEnv)

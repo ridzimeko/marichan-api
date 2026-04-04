@@ -16,7 +16,12 @@ func NewHandler(service *Service) *Handler {
 }
 
 type ChatRequest struct {
-	Prompt string `json:"prompt"`
+	Prompt              string   `json:"prompt"`
+	Provider            string   `json:"provider"` // e.g. "gemini" or "groq"
+	Model               string   `json:"model"`
+	Temperature         *float32 `json:"temperature"`
+	MaxCompletionTokens int      `json:"max_completion_tokens"`
+	TopP                *float32 `json:"top_p"`
 }
 
 func (h *Handler) Chat(c *gin.Context) {
@@ -30,7 +35,7 @@ func (h *Handler) Chat(c *gin.Context) {
 		return
 	}
 
-	reply, err := h.service.Chat(c.Request.Context(), req.Prompt)
+	reply, err := h.service.Chat(c.Request.Context(), &req)
 	if err != nil {
 		response.Error(c, http.StatusBadGateway, err.Error(), nil)
 		return

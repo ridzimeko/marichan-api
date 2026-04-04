@@ -24,7 +24,7 @@ func NewService(env *config.Env) (*Service, error) {
 	}, nil
 }
 
-func (s *Service) Chat(ctx context.Context, prompt string) (string, error) {
+func (s *Service) Chat(ctx context.Context, req *ChatRequest) (string, error) {
 	systemPrompt := ""
 	if s.env.GeminiSystemPromptFile != "" {
 		if content, err := os.ReadFile(s.env.GeminiSystemPromptFile); err == nil {
@@ -32,6 +32,11 @@ func (s *Service) Chat(ctx context.Context, prompt string) (string, error) {
 		}
 	}
 
+	if req.Provider == "groq" {
+		return s.chatGroq(ctx, s.env.GroqAPIKey, systemPrompt, req)
+	}
+
+	// Default fallback is Gemini
 	var config *genai.GenerateContentConfig
 	if systemPrompt != "" {
 		config = &genai.GenerateContentConfig{
@@ -41,7 +46,7 @@ func (s *Service) Chat(ctx context.Context, prompt string) (string, error) {
 		}
 	}
 
-	resp, err := s.client.Models.GenerateContent(ctx, "gemini-2.5-flash", genai.Text(prompt), config)
+	resp, err := s.client.Models.GenerateContent(ctx, "gemini-2.5-flash", genai.Text(req.Prompt), config)
 	if err != nil {
 		return "", err
 	}
