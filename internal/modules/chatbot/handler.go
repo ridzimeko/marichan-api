@@ -16,13 +16,21 @@ func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
+type FileData struct {
+	MimeType string `json:"mime_type"`
+	Data     string `json:"data"` // base64 encoded data
+	URI      string `json:"uri"`  // or genai URI / cloud storage
+}
+
 type ChatRequest struct {
-	Prompt              string   `json:"prompt"`
-	Provider            string   `json:"provider"` // e.g. "gemini" or "groq"
-	Model               string   `json:"model"`
-	Temperature         *float32 `json:"temperature"`
-	MaxCompletionTokens int      `json:"max_completion_tokens"`
-	TopP                *float32 `json:"top_p"`
+	Prompt              string                 `json:"prompt"`
+	Provider            string                 `json:"provider"` // e.g. "gemini" or "groq"
+	Model               string                 `json:"model"`
+	Temperature         *float32               `json:"temperature"`
+	MaxCompletionTokens int                    `json:"max_completion_tokens"`
+	TopP                *float32               `json:"top_p"`
+	Options             map[string]interface{} `json:"options"`
+	Files               []FileData             `json:"files"`
 }
 
 func (h *Handler) Chat(c *gin.Context) {

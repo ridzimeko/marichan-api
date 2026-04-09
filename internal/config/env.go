@@ -28,36 +28,38 @@ type Env struct {
 	PixivUserAgent string
 	PixivBaseURL   string
 
-	GeminiAPIKey           string
-	GeminiSystemPromptFile string
+	GeminiAPIKey        string
+	ChatbotSystemPrompt string
 
-	GroqAPIKey             string
+	GroqAPIKey       string
+	OpenRouterAPIKey string
 }
 
 func LoadEnv() *Env {
 	_ = godotenv.Load()
 
 	env := &Env{
-		AppName:                getEnv("APP_NAME", "marichan-api"),
-		AppEnv:                 getEnv("APP_ENV", "development"),
-		AppPort:                getEnv("APP_PORT", "8080"),
-		BaseURL:                getEnv("BASE_URL", "http://localhost:8080"),
-		DBHost:                 getEnv("DB_HOST", "127.0.0.1"),
-		DBPort:                 getEnv("DB_PORT", "5432"),
-		DBUser:                 getEnv("DB_USER", "postgres"),
-		DBPass:                 getEnv("DB_PASS", "postgres"),
-		DBName:                 getEnv("DB_NAME", "bot_api"),
-		DBSSLMode:              getEnv("DB_SSLMODE", "disable"),
-		APIKey:                 getEnv("API_KEY", "supersecretkey"),
-		UploadDir:              getEnv("UPLOAD_DIR", "uploads"),
-		TempDir:                getEnv("TEMP_DIR", "tmp"),
-		MaxUploadSizeMB:        getEnvInt64("MAX_UPLOAD_SIZE_MB", 10),
-		PixivPHPSESSID:         getEnv("PIXIV_PHPSESSID", ""),
-		PixivUserAgent:         getEnv("PIXIV_USER_AGENT", "Mozilla/5.0"),
-		PixivBaseURL:           getEnv("PIXIV_BASE_URL", "https://www.pixiv.net"),
-		GeminiAPIKey:           getEnv("GEMINI_API_KEY", ""),
-		GeminiSystemPromptFile: getEnv("GEMINI_SYSTEM_PROMPT_FILE", "prompts/chatbot_mari.txt"),
-		GroqAPIKey:             getEnv("GROQ_API_KEY", ""),
+		AppName:             getEnv("APP_NAME", "marichan-api"),
+		AppEnv:              getEnv("APP_ENV", "development"),
+		AppPort:             getEnv("APP_PORT", "8080"),
+		BaseURL:             getEnv("BASE_URL", "http://localhost:8080"),
+		DBHost:              getEnv("DB_HOST", "127.0.0.1"),
+		DBPort:              getEnv("DB_PORT", "5432"),
+		DBUser:              getEnv("DB_USER", "postgres"),
+		DBPass:              getEnv("DB_PASS", "postgres"),
+		DBName:              getEnv("DB_NAME", "bot_api"),
+		DBSSLMode:           getEnv("DB_SSLMODE", "disable"),
+		APIKey:              getEnv("API_KEY", "supersecretkey"),
+		UploadDir:           getEnv("UPLOAD_DIR", "uploads"),
+		TempDir:             getEnv("TEMP_DIR", "tmp"),
+		MaxUploadSizeMB:     getEnvInt64("MAX_UPLOAD_SIZE_MB", 10),
+		PixivPHPSESSID:      getEnv("PIXIV_PHPSESSID", ""),
+		PixivUserAgent:      getEnv("PIXIV_USER_AGENT", "Mozilla/5.0"),
+		PixivBaseURL:        getEnv("PIXIV_BASE_URL", "https://www.pixiv.net"),
+		GeminiAPIKey:        getEnv("GEMINI_API_KEY", ""),
+		ChatbotSystemPrompt: getEnv("CHATBOT_SYSTEM_PROMPT", "prompts/chatbot_mari.txt"),
+		GroqAPIKey:          getEnv("GROQ_API_KEY", ""),
+		OpenRouterAPIKey:    getEnv("OPENROUTER_API_KEY", ""),
 	}
 
 	log.Printf("loaded env: %s (%s)\n", env.AppName, env.AppEnv)

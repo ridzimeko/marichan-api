@@ -7,21 +7,14 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+
+	"marichan-api/internal/config"
 )
 
 type GroqMessage struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
-}
-
-type GroqRequest struct {
-	Model           string        `json:"model"`
-	Messages        []GroqMessage `json:"messages"`
-	Temperature     float32       `json:"temperature,omitempty"`
-	MaxTokens       int           `json:"max_completion_tokens,omitempty"`
-	TopP            float32       `json:"top_p,omitempty"`
-	Stream          bool          `json:"stream"`
-	ReasoningEffort string        `json:"reasoning_effort,omitempty"`
 }
 
 type GroqResponse struct {
@@ -35,7 +28,16 @@ type GroqResponse struct {
 	} `json:"error,omitempty"`
 }
 
-func (s *Service) chatGroq(ctx context.Context, apiKey string, systemPrompt string, req *ChatRequest) (string, error) {
+type GroqProvider struct {
+	env *config.Env
+}
+
+func NewGroqProvider(env *config.Env) *GroqProvider {
+	return &GroqProvider{env: env}
+}
+
+func (p *GroqProvider) Chat(ctx context.Context, req *ChatRequest) (string, error) {
+	apiKey := p.env.GroqAPIKey
 	if apiKey == "" {
 		return "", fmt.Errorf("groq API key is not configured")
 	}
@@ -46,28 +48,38 @@ func (s *Service) chatGroq(ctx context.Context, apiKey string, systemPrompt stri
 	}
 
 	messages := []GroqMessage{}
+	// For Groq system prompt, we read it just like Gemini did originally if we want to share the prompt,
+	// but let's read it here
+	systemPrompt := ""
+	if p.env.ChatbotSystemPrompt != "" {
+		if content, err := os.ReadFile(p.env.ChatbotSystemPrompt); err == nil {
+			systemPrompt = string(content)
+		}
+	}
 	if systemPrompt != "" {
 		messages = append(messages, GroqMessage{Role: "system", Content: systemPrompt})
 	}
 	messages = append(messages, GroqMessage{Role: "user", Content: req.Prompt})
 
-	temp := float32(1.0)
+	payload := map[string]interface{}{
+		"model":    model,
+		"messages": messages,
+		"stream":   false,
+	}
+
 	if req.Temperature != nil {
-		temp = *req.Temperature
+		payload["temperature"] = *req.Temperature
 	}
-
-	topP := float32(1.0)
 	if req.TopP != nil {
-		topP = *req.TopP
+		payload["top_p"] = *req.TopP
+	}
+	if req.MaxCompletionTokens > 0 {
+		payload["max_completion_tokens"] = req.MaxCompletionTokens
 	}
 
-	payload := GroqRequest{
-		Model:       model,
-		Messages:    messages,
-		Temperature: temp,
-		TopP:        topP,
-		MaxTokens:   req.MaxCompletionTokens,
-		Stream:      false,
+	// Spread custom options directly to Groq payload body
+	for k, v := range req.Options {
+		payload[k] = v
 	}
 
 	bodyData, err := json.Marshal(payload)
