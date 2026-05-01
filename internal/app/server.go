@@ -39,7 +39,7 @@ func NewServer(env *config.Env) (*Server, error) {
 	stickerService := sticker.NewService(env)
 	traceAnimeService := traceanime.NewService()
 	pixivService := pixiv.NewService(env)
-	chatbotService, err := chatbot.NewService(env)
+	chatbotService, err := chatbot.NewService(env, db)
 	if err != nil {
 		return nil, err
 	}

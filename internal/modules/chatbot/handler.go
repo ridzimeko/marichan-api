@@ -23,6 +23,7 @@ type FileData struct {
 }
 
 type ChatRequest struct {
+	SessionID           string                 `json:"session_id"`
 	Prompt              string                 `json:"prompt"`
 	Provider            string                 `json:"provider"` // e.g. "gemini" or "groq"
 	Model               string                 `json:"model"`
