@@ -94,23 +94,29 @@ func (s *Service) Chat(ctx context.Context, req *ChatRequest) (string, error) {
 		if err == nil && len(emb) > 0 {
 			userEmbedding = emb
 
-			// Find nearest 5 past conversations
+			// Find nearest 3 past conversations to save context size
 			var pastChats []database.ChatMemory
 			s.db.Order("embedding <-> '"+pgvector.NewVector(emb).String()+"'").
 				Where("session_id = ?", req.SessionID).
-				Limit(5).
+				Limit(3).
 				Find(&pastChats)
 
 			if len(pastChats) > 0 {
 				var contextBuilder strings.Builder
 				contextBuilder.WriteString("The following are relevant past messages from this conversation history to provide context:\n")
 				for _, chat := range pastChats {
-					contextBuilder.WriteString(fmt.Sprintf("[%s]: %s\n", chat.Role, chat.Content))
+					content := chat.Content
+					// Truncate to maximum 500 characters per message to save token limit
+					if len(content) > 500 {
+						content = content[:500] + "...(truncated)"
+					}
+					contextBuilder.WriteString(fmt.Sprintf("[%s]: %s\n", chat.Role, content))
 				}
 				contextBuilder.WriteString("\nBased on the context above, please answer the new prompt.\n\nNew prompt: ")
 				contextBuilder.WriteString(originalPrompt)
 
 				req.Prompt = contextBuilder.String()
+				fmt.Println(req.Prompt)
 			}
 		} else {
 			fmt.Println("Warning: Failed to get embedding for RAG:", err)
