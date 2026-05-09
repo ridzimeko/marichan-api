@@ -95,7 +95,7 @@ func (g *GeminiProvider) Chat(ctx context.Context, req *ChatRequest) (string, er
 		},
 	}
 
-	resp, err := g.client.Models.GenerateContent(ctx, "gemma-4-31b-it", contents, config)
+	resp, err := g.client.Models.GenerateContent(ctx, "gemma-4-26b-a4b-it", contents, config)
 	if err != nil {
 		return "", err
 	}
